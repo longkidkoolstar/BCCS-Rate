@@ -656,6 +656,7 @@ textarea {
     color: var(--neutral-300);
     padding: 0.25rem;
     transition: var(--transition);
+    position: relative; /* Added for half-star positioning */
 }
 
 .star-rating i:hover {
@@ -663,6 +664,10 @@ textarea {
 }
 
 .star-rating i.fas {
+    color: var(--warning-color);
+}
+
+.star-rating i.fa-star-half-alt {
     color: var(--warning-color);
 }
 

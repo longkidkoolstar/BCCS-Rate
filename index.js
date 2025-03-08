@@ -43,24 +43,89 @@ async function fetchData() {
     }
 }
 
-// Convert score to star display
-function getStarRating(score) {
-    const fullStars = Math.floor(score);
-    const halfStar = score % 1 >= 0.5;
-    let starsHtml = '';
+// Updated star rating functionality with half-star support
+function initializeStarRating() {
+    const starContainer = document.querySelector('.star-rating');
+    const ratingInput = document.getElementById('rating-value');
+    const stars = starContainer.querySelectorAll('i');
     
-    for (let i = 1; i <= 5; i++) {
-        if (i <= fullStars) {
-            starsHtml += '<i class="fas fa-star"></i>';
-        } else if (i === fullStars + 1 && halfStar) {
-            starsHtml += '<i class="fas fa-star-half-alt"></i>';
-        } else {
-            starsHtml += '<i class="far fa-star"></i>';
+    // Function to update stars display
+    function updateStars(rating) {
+      stars.forEach((star, index) => {
+        const position = index + 1;
+        
+        // Reset all stars
+        star.className = 'far fa-star';
+        
+        if (position <= Math.floor(rating)) {
+          // Full star
+          star.className = 'fas fa-star';
+        } else if (position === Math.ceil(rating) && rating % 1 !== 0) {
+          // Half star
+          star.className = 'fas fa-star-half-alt';
         }
+      });
+      
+      // Update hidden input value
+      ratingInput.value = rating;
     }
     
-    return starsHtml;
-}
+    // Add event listeners for mouse movement
+    starContainer.addEventListener('mousemove', (e) => {
+      const star = e.target;
+      if (star.tagName === 'I') {
+        const rect = star.getBoundingClientRect();
+        const starMiddle = rect.left + rect.width / 2;
+        const position = parseInt(star.dataset.rating);
+        
+        // Determine if mouse is on left half (half star) or right half (full star)
+        let rating;
+        if (e.clientX < starMiddle) {
+          rating = position - 0.5;
+        } else {
+          rating = position;
+        }
+        
+        updateStars(rating);
+      }
+    });
+    
+    // Handle click to set the rating
+    starContainer.addEventListener('click', (e) => {
+      const star = e.target;
+      if (star.tagName === 'I') {
+        // Rating is already set by mousemove
+        // Just keep it as is
+      }
+    });
+    
+    // Reset stars when mouse leaves container
+    starContainer.addEventListener('mouseleave', () => {
+      updateStars(parseFloat(ratingInput.value) || 0);
+    });
+  }
+  
+  // Call this function when the DOM is loaded
+  document.addEventListener('DOMContentLoaded', initializeStarRating);
+  
+  // Convert score to star display (for displaying existing ratings)
+  function getStarRating(score) {
+      const fullStars = Math.floor(score);
+      const halfStar = score % 1 >= 0.5;
+      let starsHtml = '';
+      
+      for (let i = 1; i <= 5; i++) {
+          if (i <= fullStars) {
+              starsHtml += '<i class="fas fa-star"></i>';
+          } else if (i === fullStars + 1 && halfStar) {
+              starsHtml += '<i class="fas fa-star-half-alt"></i>';
+          } else {
+              starsHtml += '<i class="far fa-star"></i>';
+          }
+      }
+      
+      return starsHtml;
+  }
 
 // Determine rank based on score
 function getRankFromScore(score) {
