@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCCS-Rate | Teacher Ratings</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            document.documentElement.classList.remove('no-js');
+
+            function getThemePreference() {
+                const storedTheme = localStorage.getItem('theme');
+                if (storedTheme) {
+                    return storedTheme;
+                }
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            document.documentElement.setAttribute('data-theme', getThemePreference());
+            setTimeout(function() {
+                document.documentElement.classList.add('theme-loaded');
+            }, 10);
+        })();
+    </script>
+</head>
+<body>
+    <header>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <div class="container content">
+            <h1>BCCS-Rate</h1>
+            <p class="tagline">Find and rate the best teachers at BCCS</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#teachers" class="active"><i class="fas fa-chalkboard-teacher"></i> Teachers</a></li>
+                <li><a href="#leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+                <li><a href="#ranking-info"><i class="fas fa-star-half-alt"></i> Ranking System</a></li>
+                <li><a href="#add-rating"><i class="fas fa-pen"></i> Add Rating</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <section id="teachers">
+                <h2>Teacher Profiles</h2>
+                <div class="teacher-cards" id="teacher-list">
+                    <!-- Teacher cards will be populated here by JavaScript -->
+                </div>
+            </section>
+
+            <section id="leaderboard">
+                <h2>Teacher Leaderboard</h2>
+                <div class="leaderboard-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Teacher</th>
+                                <th>Subject</th>
+                                <th>Rating</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Leaderboard will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="ranking-info">
+                <h2>Ranking System</h2>
+                <div class="ranking-card">
+                    <div id="ranking-system-list">
+                        <!-- Ranking system will be populated here by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="add-rating">
+                <h2>Add a Rating</h2>
+                <div class="rating-form">
+                    <form id="rating-form">
+                        <div class="form-group">
+                            <label for="teacher-select">Select Teacher:</label>
+                            <select id="teacher-select" required>
+                                <option value="">--Select a Teacher--</option>
+                                <!-- Teacher options will be populated here by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Your Username:</label>
+                            <input type="text" id="username" placeholder="Enter your username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Rating:</label>
+                            <div class="star-rating">
+                                <i class="far fa-star" data-rating="1"></i>
+                                <i class="far fa-star" data-rating="2"></i>
+                                <i class="far fa-star" data-rating="3"></i>
+                                <i class="far fa-star" data-rating="4"></i>
+                                <i class="far fa-star" data-rating="5"></i>
+                                <input type="hidden" id="rating-value" value="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Comment:</label>
+                            <textarea id="comment" placeholder="Share your experience with this teacher" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit Rating</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">BCCS-Rate</div>
+            <p class="footer-tagline">Helping students find the best teachers since 2025</p>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Contact</a>
+            </div>
+            <p class="footer-copyright">&copy; 2025 BCCS-Rate. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Templates -->
+    <template id="teacher-card-template">
+        <div class="teacher-card">
+            <div class="teacher-card-top">
+                <div class="teacher-header">
+                    <div class="teacher-info">
+                        <h3 class="teacher-name"></h3>
+                        <div class="teacher-subject"></div>
+                        <div class="teacher-rating">
+                            <span class="rating-number"></span>
+                            <span class="rating-stars"></span>
+                        </div>
+                    </div>
+                    <div class="teacher-rank"></div>
+                </div>
+                <p class="teacher-description"></p>
+            </div>
+            <div class="teacher-ratings">
+                <h4>Student Reviews</h4>
+                <div class="ratings-list">
+                    <!-- Individual ratings will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="rating-item-template">
+        <div class="rating-item">
+            <div class="rating-header">
+                <span class="rating-username"></span>
+                <span class="rating-score"></span>
+            </div>
+            <p class="rating-comment"></p>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('themeToggle');
+            const icon = themeToggle.querySelector('i');
+
+            function updateThemeIcon() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon();
+            }
+
+            updateThemeIcon();
+            themeToggle.addEventListener('click', toggleTheme);
+        });
+    </script>
+    <script src="index.js"></script>
+</body>
+</html>
