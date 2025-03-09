@@ -55,6 +55,22 @@
         <div class="container">
             <section id="teachers">
                 <h2>Teacher Profiles</h2>
+                <div class="form-group">
+                    <label for="search-teacher">Search Teacher:</label>
+                    <input type="text" id="search-teacher" placeholder="Search by name...">
+                </div>
+                <div class="form-group sort-container">
+                    <label for="sort-select">Sort By:</label>
+                    <div class="sort-dropdown">
+                        <select id="sort-select">
+                            <option value="name">Name</option>
+                            <option value="average_rating">Average Rating</option>
+                            <option value="subject">Subject</option>
+                            <option value="alphabetical">Alphabetical</option>
+                        </select>
+                        <i class="fas fa-sort"></i>
+                    </div>
+                </div>
                 <div class="teacher-cards" id="teacher-list">
                     <!-- Teacher cards will be populated here by JavaScript -->
                 </div>

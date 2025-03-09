@@ -237,11 +237,11 @@ function getRankFromScore(score) {
     return 'F';
 }
 
-// Render teacher cards
-function renderTeachers() {
-    teacherListElement.innerHTML = '';
-    
-    teachersData.forEach(teacher => {
+// Function to render teacher cards
+function renderTeachers(teachers = teachersData) {
+    teacherListElement.innerHTML = ''; // Clear existing cards
+
+    teachers.forEach(teacher => {
         const cardClone = teacherCardTemplate.content.cloneNode(true);
         
         // Fill in teacher details
@@ -507,6 +507,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch data from API
     fetchData();
 });
+
+// Add this code after the existing DOMContentLoaded event listener
+document.getElementById('sort-select').addEventListener('change', function() {
+    const sortBy = this.value;
+    sortTeachers(sortBy);
+});
+
+// Function to sort teachers based on the selected criteria
+function sortTeachers(criteria) {
+    if (criteria === 'name') {
+        teachersData.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (criteria === 'average_rating') {
+        teachersData.sort((a, b) => b.average_rating - a.average_rating);
+    } else if (criteria === 'subject') {
+        teachersData.sort((a, b) => a.subject.localeCompare(b.subject));
+    } else if (criteria === 'alphabetical') {
+        teachersData.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    renderTeachers(); // Re-render the teacher cards after sorting
+}
+
+// Add this code after the existing DOMContentLoaded event listener
+document.getElementById('search-teacher').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    filterTeachers(searchTerm);
+});
+
+// Function to filter teachers based on the search term
+function filterTeachers(searchTerm) {
+    const filteredTeachers = teachersData.filter(teacher => 
+        teacher.name.toLowerCase().includes(searchTerm)
+    );
+    renderTeachers(filteredTeachers); // Render filtered teachers
+}
 
 // Admin functions
 function activateAdminMode() {

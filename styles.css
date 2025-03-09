@@ -808,3 +808,49 @@ footer .container {
 .teacher-card:nth-child(2) { animation-delay: 0.1s; }
 .teacher-card:nth-child(3) { animation-delay: 0.2s; }
 .teacher-card:nth-child(4) { animation-delay: 0.3s; }
+
+/* Add this to your styles.css */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+#search-teacher {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#sort-select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+/* Add this to your styles.css */
+.sort-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.sort-dropdown {
+    display: flex;
+    align-items: center;
+}
+
+#sort-select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem; /* Smaller font size */
+    margin-right: 0.5rem; /* Space between dropdown and icon */
+}
+
+.sort-dropdown i {
+    font-size: 1.2rem; /* Adjust icon size */
+    color: #333; /* Icon color */
+}
