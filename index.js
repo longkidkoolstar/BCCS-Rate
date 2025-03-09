@@ -559,6 +559,8 @@ function activateAdminMode() {
             <button id="delete-teacher">Delete Teacher</button>
             <button id="modify-ranking">Modify Ranking System</button>
             <button id="clear-ratings">Clear All Ratings</button>
+            <button id="export-data">Export Data</button>
+            <button id="import-data">Import Data</button>
         </div>
     `;
     
@@ -586,6 +588,12 @@ function activateAdminMode() {
             clearAllRatings();
         }
     });
+
+    // Add event listener for exporting data
+    document.getElementById('export-data').addEventListener('click', exportData);
+    
+    // Add event listener for importing data
+    document.getElementById('import-data').addEventListener('click', importData);
 }
 
 // Admin functions implementations
@@ -752,4 +760,50 @@ async function checkRatingDiscrepancies() {
     teachersData.forEach(teacher => {
         teacher.rank = getRankFromScore(teacher.average_rating); // Update rank based on new average
     });
+}
+
+function exportData() {
+    const data = {
+        teachers: teachersData,
+        ranking_system: rankingSystem
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'teachers_data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+async function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                teachersData = data.teachers;
+                rankingSystem = data.ranking_system;
+                await saveDataToAPI('Data imported successfully!');
+                alert('Data imported successfully!');
+            } catch (error) {
+                console.error('Error importing data:', error);
+                alert('Failed to import data. Please ensure the file is valid JSON.');
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+    input.click();
 }
