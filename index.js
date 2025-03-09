@@ -1,6 +1,6 @@
 // Constants
-const API_URL = 'https://api.jsonstorage.net/v1/json/d206ce58-9543-48db-a5e4-997cfc745ef3/c390d482-417d-42dc-b53f-687f4367141b';
-const API_KEY = '42293adc-9756-411d-b058-cc6724ba423c';
+const API_URL = 'https://api.jsonbin.io/v3/b/67cd9070acd3cb34a8f798f6';
+const API_KEY = '$2a$10$kRJDDE/nRilJ0DyFh/xvoeixHY4b6rQDAFYbC3tCu0N1cNL1cQ.jy';
 
 // DOM Elements
 const teacherListElement = document.getElementById('teacher-list');
@@ -92,10 +92,11 @@ async function updateAPIWithTeachersData() {
         };
         
         // Send the update to the API
-        const response = await fetch(`${API_URL}?apiKey=${API_KEY}`, {
+        const response = await fetch(API_URL, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             },
             body: JSON.stringify(updatedData)
         });
@@ -112,22 +113,28 @@ async function updateAPIWithTeachersData() {
 // Fetch data from API
 async function fetchData() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
+            }
+        });
         if (!response.ok) {
             throw new Error('Failed to fetch data');
         }
         const data = await response.json();
         
         // Store data globally
-        teachersData = data.teachers;
-        rankingSystem = data.ranking_system;
+        teachersData = data.record.teachers;
+        rankingSystem = data.record.ranking_system;
 
         // Remove duplicate ratings
         await removeDuplicateRatings();
         
         // Initialize the app
         renderTeachers();
-        renderLeaderboard(data.leaderboard);
+        renderLeaderboard(data.record.leaderboard);
         renderRankingSystem();
         populateTeacherSelect();
     } catch (error) {
@@ -437,10 +444,11 @@ ratingForm.addEventListener('submit', async function(e) {
         };
         
         // Send the update to the API
-        const response = await fetch(`${API_URL}?apiKey=${API_KEY}`, {
+        const response = await fetch(`${API_URL}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             },
             body: JSON.stringify(updatedData)
         });
@@ -648,10 +656,11 @@ async function saveDataToAPI(successMessage) {
         };
         
         // Send the update to the API
-        const response = await fetch(`${API_URL}?apiKey=${API_KEY}`, {
+        const response = await fetch(`${API_URL}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             },
             body: JSON.stringify(updatedData)
         });
