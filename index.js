@@ -1,6 +1,6 @@
 // Constants
 const API_URL = 'https://api.jsonbin.io/v3/b/67cd9070acd3cb34a8f798f6';
-const API_KEY = '$2a$10$kRJDDE/nRilJ0DyFh/xvoeixHY4b6rQDAFYbC3tCu0N1cNL1cQ.jy';
+const API_KEY = process.env.API_KEY; // Use environment variable for API key
 
 // DOM Elements
 const teacherListElement = document.getElementById('teacher-list');
