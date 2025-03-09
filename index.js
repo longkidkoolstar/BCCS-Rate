@@ -1,4 +1,6 @@
-
+// Constants
+const API_URL = 'https://api.jsonbin.io/v3/b/67cd9070acd3cb34a8f798f6';
+const API_KEY = '$2a$10$kRJDDE/nRilJ0DyFh/xvoeixHY4b6rQDAFYbC3tCu0N1cNL1cQ.jy';
 
 // DOM Elements
 const teacherListElement = document.getElementById('teacher-list');
@@ -90,17 +92,14 @@ async function updateAPIWithTeachersData() {
         };
         
         // Send the update to the API
-        const response = await fetch('/api/update', {
+        const response = await fetch(API_URL, {
             method: 'PUT',
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             },
             body: JSON.stringify(updatedData)
-          });
-          
-          const result = await response.json();
-          console.log(result);
-          
+        });
         
         if (!response.ok) {
             throw new Error('Failed to update data in the API');
@@ -114,19 +113,17 @@ async function updateAPIWithTeachersData() {
 // Fetch data from API
 async function fetchData() {
     try {
-        const response = await fetch('/api/getData', {
+        const response = await fetch(API_URL, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             }
         });
-        
         if (!response.ok) {
             throw new Error('Failed to fetch data');
         }
-        
         const data = await response.json();
-        
         
         // Store data globally
         teachersData = data.record.teachers;
@@ -447,10 +444,11 @@ ratingForm.addEventListener('submit', async function(e) {
         };
         
         // Send the update to the API
-        const response = await fetch('/api/update', {
+        const response = await fetch(`${API_URL}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             },
             body: JSON.stringify(updatedData)
         });
@@ -458,7 +456,6 @@ ratingForm.addEventListener('submit', async function(e) {
         if (!response.ok) {
             throw new Error('Failed to update data');
         }
-        
         
         // Update the UI
         renderTeachers();
@@ -706,10 +703,11 @@ async function saveDataToAPI(successMessage) {
         };
         
         // Send the update to the API
-        const response = await fetch('/api/update', {
+        const response = await fetch(`${API_URL}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Access-Key': API_KEY
             },
             body: JSON.stringify(updatedData)
         });
@@ -717,7 +715,6 @@ async function saveDataToAPI(successMessage) {
         if (!response.ok) {
             throw new Error('Failed to update data');
         }
-        
         
         // Update the UI
         renderTeachers();
