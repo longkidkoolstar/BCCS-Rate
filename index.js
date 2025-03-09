@@ -19,6 +19,37 @@ const ratingItemTemplate = document.getElementById('rating-item-template');
 let teachersData = [];
 let rankingSystem = {};
 
+// Konami Code sequence
+const konamiCode = [
+    'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+    'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+    'b', 'a'
+];
+
+let konamiCodePosition = 0;
+
+// Function to handle the Konami Code
+function handleKonamiCode(e) {
+    const key = e.key;
+    
+    if (key === konamiCode[konamiCodePosition]) {
+        konamiCodePosition++;
+        
+        if (konamiCodePosition === konamiCode.length) {
+            // Trigger admin commands
+            alert('Admin commands activated!');
+            activateAdminMode();
+            // Reset position for future use
+            konamiCodePosition = 0;
+        }
+    } else {
+        konamiCodePosition = 0; // Reset if the sequence is broken
+    }
+}
+
+// Add event listener for keydown
+document.addEventListener('keydown', handleKonamiCode);
+
 // Fetch data from API
 async function fetchData() {
     try {
@@ -373,5 +404,202 @@ navLinks.forEach(link => {
     });
 });
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', fetchData);
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+    // Get elements once the DOM is loaded
+    let teacherListElement = document.getElementById('teacher-list');
+    let teacherCardTemplate = document.getElementById('teacher-card-template');
+    let ratingItemTemplate = document.getElementById('rating-item-template');
+    let teacherSelectElement = document.getElementById('teacher-select');
+    let ratingFormElement = document.getElementById('rating-form');
+    let searchInput = document.getElementById('search-teacher');
+    let sortSelectElement = document.getElementById('sort-select');
+    let rankFilterElement = document.getElementById('rank-filter');
+    let leaderboardBodyElement = document.getElementById('leaderboard-body');
+    let rankingSystemListElement = document.getElementById('ranking-system-list');
+    
+    // Set the default active tab if it exists
+    const defaultTab = document.querySelector('.tab-link[data-tab="teachers-tab"]');
+    if (defaultTab) {
+        defaultTab.click();
+    }
+    
+    // Initialize star rating
+    initializeStarRating();
+    
+    // Fetch data from API
+    fetchData();
+});
+
+// Admin functions
+function activateAdminMode() {
+    console.log('Admin mode activated!');
+    
+    const adminPanel = document.createElement('div');
+    adminPanel.id = 'admin-panel';
+    adminPanel.className = 'admin-panel';
+    adminPanel.innerHTML = `
+        <div class="admin-panel-header">
+            <h3>Admin Panel</h3>
+            <button id="close-admin">X</button>
+        </div>
+        <div class="admin-panel-content">
+            <button id="create-teacher">Create New Teacher</button>
+            <button id="delete-teacher">Delete Teacher</button>
+            <button id="modify-ranking">Modify Ranking System</button>
+            <button id="clear-ratings">Clear All Ratings</button>
+        </div>
+    `;
+    
+    document.body.appendChild(adminPanel);
+    
+    // Add event listeners for admin actions
+    document.getElementById('close-admin').addEventListener('click', function() {
+        document.body.removeChild(adminPanel);
+    });
+    
+    document.getElementById('create-teacher').addEventListener('click', function() {
+        createNewTeacher();
+    });
+    
+    document.getElementById('delete-teacher').addEventListener('click', function() {
+        deleteTeacher();
+    });
+    
+    document.getElementById('modify-ranking').addEventListener('click', function() {
+        modifyRankingSystem();
+    });
+    
+    document.getElementById('clear-ratings').addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all ratings? This cannot be undone!')) {
+            clearAllRatings();
+        }
+    });
+}
+
+// Admin functions implementations
+function createNewTeacher() {
+    const teacherName = prompt('Enter teacher name:');
+    if (!teacherName) return;
+    
+    const subject = prompt('Enter subject:');
+    if (!subject) return;
+    
+    const description = prompt('Enter description:');
+    if (!description) return;
+
+    // Determine the new teacher ID
+    const highestId = teachersData.length > 0 ? Math.max(...teachersData.map(t => t.id)) : 0;
+    const newTeacherId = highestId + 1; // Increment the highest ID by 1
+
+    const newTeacher = {
+        id: newTeacherId, // Use the new ID
+        name: teacherName,
+        subject: subject,
+        description: description,
+        average_rating: 0,
+        rank: 'F',
+        ratings: []
+    };
+    
+    teachersData.push(newTeacher);
+    saveDataToAPI('New teacher created successfully!');
+}
+
+function deleteTeacher() {
+    const teacherOptions = teachersData.map(t => `${t.id}: ${t.name} (${t.subject})`).join('\n');
+    const teacherInput = prompt(`Enter the ID or name of the teacher to delete:\n${teacherOptions}`);
+    
+    if (!teacherInput) return;
+
+    // Check if the input is a number (ID) or a string (name)
+    const id = parseInt(teacherInput);
+    const index = isNaN(id) 
+        ? teachersData.findIndex(t => t.name.toLowerCase() === teacherInput.toLowerCase()) // Find by name
+        : teachersData.findIndex(t => t.id === id); // Find by ID
+
+    if (index === -1) {
+        alert('Teacher not found');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete ${teachersData[index].name}?`)) {
+        teachersData.splice(index, 1);
+        saveDataToAPI('Teacher deleted successfully!');
+    }
+}
+
+function modifyRankingSystem() {
+    const rankOptions = Object.entries(rankingSystem)
+        .map(([rank, desc]) => `${rank}: ${desc}`)
+        .join('\n');
+        
+    const rankToModify = prompt(`Enter the rank to modify:\n${rankOptions}`);
+    
+    if (!rankToModify || !rankingSystem[rankToModify]) {
+        alert('Invalid rank');
+        return;
+    }
+    
+    const newDescription = prompt(`Enter new description for rank ${rankToModify}:`, rankingSystem[rankToModify]);
+    
+    if (newDescription) {
+        rankingSystem[rankToModify] = newDescription;
+        saveDataToAPI('Ranking system updated successfully!');
+    }
+}
+
+function clearAllRatings() {
+    teachersData = teachersData.map(teacher => ({
+        ...teacher,
+        average_rating: 0,
+        rank: 'F',
+        ratings: []
+    }));
+    
+    saveDataToAPI('All ratings have been cleared!');
+}
+
+async function saveDataToAPI(successMessage) {
+    try {
+        // Update leaderboard
+        const leaderboard = teachersData
+            .map(teacher => ({
+                teacher_id: teacher.id,
+                name: teacher.name,
+                average_rating: teacher.average_rating
+            }))
+            .sort((a, b) => b.average_rating - a.average_rating);
+        
+        // Prepare the updated data
+        const updatedData = {
+            teachers: teachersData,
+            leaderboard: leaderboard,
+            ranking_system: rankingSystem
+        };
+        
+        // Send the update to the API
+        const response = await fetch(`${API_URL}?apiKey=${API_KEY}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to update data');
+        }
+        
+        // Update the UI
+        renderTeachers();
+        renderLeaderboard(leaderboard);
+        renderRankingSystem();
+        populateTeacherSelect();
+        
+        alert(successMessage);
+    } catch (error) {
+        console.error('Error saving data:', error);
+        alert('Failed to save changes. Please try again later.');
+    }
+}
