@@ -557,6 +557,7 @@ function activateAdminMode() {
         <div class="admin-panel-content">
             <button id="create-teacher">Create New Teacher</button>
             <button id="delete-teacher">Delete Teacher</button>
+            <button id="edit-teacher">Edit Teacher</button>
             <button id="modify-ranking">Modify Ranking System</button>
             <button id="clear-ratings">Clear All Ratings</button>
             <button id="export-data">Export Data</button>
@@ -577,6 +578,10 @@ function activateAdminMode() {
     
     document.getElementById('delete-teacher').addEventListener('click', function() {
         deleteTeacher();
+    });
+    
+    document.getElementById('edit-teacher').addEventListener('click', function() {
+        editTeacher();
     });
     
     document.getElementById('modify-ranking').addEventListener('click', function() {
@@ -806,4 +811,31 @@ async function importData() {
     };
     
     input.click();
+}
+
+function editTeacher() {
+    const teacherOptions = teachersData.map(t => `${t.id}: ${t.name} (${t.subject})`).join('\n');
+    const teacherInput = prompt(`Enter the ID or name of the teacher to edit:\n${teacherOptions}`);
+    
+    if (!teacherInput) return;
+
+    const id = parseInt(teacherInput);
+    const index = isNaN(id) 
+        ? teachersData.findIndex(t => t.name.toLowerCase() === teacherInput.toLowerCase()) 
+        : teachersData.findIndex(t => t.id === id);
+
+    if (index === -1) {
+        alert('Teacher not found');
+        return;
+    }
+
+    const newName = prompt('Enter new name:', teachersData[index].name);
+    const newSubject = prompt('Enter new subject:', teachersData[index].subject);
+    const newDescription = prompt('Enter new description:', teachersData[index].description);
+
+    if (newName) teachersData[index].name = newName;
+    if (newSubject) teachersData[index].subject = newSubject;
+    if (newDescription) teachersData[index].description = newDescription;
+
+    saveDataToAPI('Teacher information updated successfully!');
 }
