@@ -129,8 +129,8 @@ async function fetchData() {
         teachersData = data.record.teachers;
         rankingSystem = data.record.ranking_system;
 
-        // Remove duplicate ratings
-        await removeDuplicateRatings();
+        // Check for discrepancies in ratings
+        await checkRatingDiscrepancies();
         
         // Initialize the app
         renderTeachers();
@@ -680,4 +680,42 @@ async function saveDataToAPI(successMessage) {
         console.error('Error saving data:', error);
         alert('Failed to save changes. Please try again later.');
     }
+}
+
+// Function to check for discrepancies in average ratings
+async function checkRatingDiscrepancies() {
+    let discrepanciesFound = false; // Flag to track if any discrepancies were found
+
+    teachersData.forEach(teacher => {
+        const ratings = teacher.ratings.map(r => r.score);
+        if (ratings.length > 0) {
+            const calculatedAverage = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+            if (calculatedAverage !== teacher.average_rating) {
+                console.warn(`Discrepancy found for ${teacher.name} (ID: ${teacher.id}): ` +
+                             `Calculated Average: ${calculatedAverage.toFixed(2)}, ` +
+                             `Stored Average: ${teacher.average_rating}`);
+                // Update the stored average rating to the calculated one
+                teacher.average_rating = calculatedAverage; // Auto-fix discrepancies
+                discrepanciesFound = true; // Set flag to true
+            }
+        } else {
+            // If there are no ratings, ensure the average is set to 0
+            if (teacher.average_rating !== 0) {
+                console.warn(`Discrepancy found for ${teacher.name} (ID: ${teacher.id}): ` +
+                             `No ratings present, but stored average is ${teacher.average_rating}`);
+                teacher.average_rating = 0; // Auto-fix discrepancies
+                discrepanciesFound = true; // Set flag to true
+            }
+        }
+    });
+
+    // If any discrepancies were found, save the updated data to the API
+    if (discrepanciesFound) {
+        await saveDataToAPI('Discrepancies in ratings have been fixed and updated.');
+    }
+
+    // Recalculate ranks after fixing discrepancies
+    teachersData.forEach(teacher => {
+        teacher.rank = getRankFromScore(teacher.average_rating); // Update rank based on new average
+    });
 }
