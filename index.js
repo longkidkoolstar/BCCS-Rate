@@ -50,6 +50,65 @@ function handleKonamiCode(e) {
 // Add event listener for keydown
 document.addEventListener('keydown', handleKonamiCode);
 
+// Function to remove duplicate ratings regardless of username
+async function removeDuplicateRatings() {
+    for (const teacher of teachersData) {
+        const uniqueRatings = [];
+        const seenComments = new Set();
+
+        teacher.ratings.forEach(rating => {
+            const commentKey = rating.comment; // Use comment as the key for duplicates
+            if (!seenComments.has(commentKey)) {
+                seenComments.add(commentKey);
+                uniqueRatings.push(rating);
+            }
+        });
+
+        // Update the teacher's ratings to only include unique ones
+        teacher.ratings = uniqueRatings;
+    }
+
+    // Update the API with the new ratings
+    await updateAPIWithTeachersData();
+}
+
+// Function to update the API with the current teachers data
+async function updateAPIWithTeachersData() {
+    try {
+        // Update leaderboard
+        const leaderboard = teachersData
+            .map(teacher => ({
+                teacher_id: teacher.id,
+                name: teacher.name,
+                average_rating: teacher.average_rating
+            }))
+            .sort((a, b) => b.average_rating - a.average_rating);
+        
+        // Prepare the updated data
+        const updatedData = {
+            teachers: teachersData,
+            leaderboard: leaderboard,
+            ranking_system: rankingSystem
+        };
+        
+        // Send the update to the API
+        const response = await fetch(`${API_URL}?apiKey=${API_KEY}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to update data in the API');
+        }
+    } catch (error) {
+        console.error('Error updating API:', error);
+        alert('Failed to update data in the API. Please try again later.');
+    }
+}
+
 // Fetch data from API
 async function fetchData() {
     try {
@@ -62,6 +121,9 @@ async function fetchData() {
         // Store data globally
         teachersData = data.teachers;
         rankingSystem = data.ranking_system;
+
+        // Remove duplicate ratings
+        await removeDuplicateRatings();
         
         // Initialize the app
         renderTeachers();
@@ -327,13 +389,17 @@ ratingForm.addEventListener('submit', async function(e) {
         return;
     }
     
-    try {
-        // Find the teacher to update
-        const teacherIndex = teachersData.findIndex(t => t.id === teacherId);
-        if (teacherIndex === -1) {
-            throw new Error('Teacher not found');
+    // Check for duplicate rating
+    const teacherIndex = teachersData.findIndex(t => t.id === teacherId);
+    if (teacherIndex !== -1) {
+        const existingRating = teachersData[teacherIndex].ratings.find(r => r.user === username && r.comment === comment);
+        if (existingRating) {
+            alert('You have already submitted this rating.');
+            return;
         }
-        
+    }
+    
+    try {
         // Add the new rating
         const newRating = {
             user: username,
@@ -342,6 +408,9 @@ ratingForm.addEventListener('submit', async function(e) {
         };
         
         teachersData[teacherIndex].ratings.push(newRating);
+        
+        // Remove duplicate ratings after adding a new one
+        await removeDuplicateRatings();
         
         // Recalculate average rating
         const ratings = teachersData[teacherIndex].ratings.map(r => r.score);
